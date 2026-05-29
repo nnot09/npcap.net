@@ -35,14 +35,21 @@ namespace npcap.net.Native
  */
         // typedef u_int bpf_u_int32;
 
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct pcap_if
+        // Credits Copilot for the idea to use an interface in combination with the next pointer.
+        public unsafe interface ILinkedList 
         {
-            pcap_if *next;
-	        char* name;     /* name to hand to "pcap_open_live()" */
-            char* description;  /* textual description of interface, or NULL */
-            pcap_addr *addresses;
-	        uint flags;  /* PCAP_IF_ interface flags */
+            void* next { get; }
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        public unsafe struct pcap_if : ILinkedList
+        {
+            public pcap_if *next;
+	        public string name;     /* name to hand to "pcap_open_live()" */
+            public string description;  /* textual description of interface, or NULL */
+            public pcap_addr *addresses;
+	        public uint flags;  /* PCAP_IF_ interface flags */
+            unsafe void* ILinkedList.next => next; // Copilot \_(°.°)_/
         };
 
         [StructLayout(LayoutKind.Sequential)]

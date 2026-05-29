@@ -40,15 +40,15 @@ namespace npcap.net
                     return;
                 }
 
-                Console.Write($"{DateTime.Now} npcap.net: Running test...");
+                Console.WriteLine($"{DateTime.Now} npcap.net: Running tests");
                 var result = npcap.Test();
                 if (result.Success)
                 {
-                    Console.WriteLine("OK");
+                    Console.WriteLine("Test successful.");
                 }
                 else
                 {
-                    Console.WriteLine("ERR");
+                    Console.WriteLine("Test failed.");
                     Console.WriteLine($"{DateTime.Now} npcap.net: {result.ErrorMessage}");
                 }
             }

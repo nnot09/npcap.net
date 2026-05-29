@@ -1,4 +1,5 @@
-﻿using npcap.net.Native;
+﻿using npcap.net.ManagedTypes;
+using npcap.net.Native;
 using npcap.net.NewFolder;
 using npcap.net.Types;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
+using static npcap.net.Native.WpcapStructs;
 
 namespace npcap.net
 {
@@ -66,10 +68,24 @@ namespace npcap.net
 
             StringBuilder sb = new StringBuilder(256);
             var ret = Wpcap.pcap_findalldevs_ex(Wpcap.PCAP_SRC_IF_STRING, IntPtr.Zero, out IntPtr devices, sb);
-            if (ret == 0)
+            Console.WriteLine($"{DateTime.Now} npcap.net: pcap_findalldevs_ex");
+            if (ret == -1)
             {
                 return (false, sb.ToString());
             }
+
+            var deviceList = devices.ConvertIntPtrLinkedListToManagedList<pcap_if>().Select(p => new Device(p)).ToList();
+            if (deviceList.Any())
+            {
+                foreach (var device in deviceList)
+                {
+                    Console.WriteLine($"{device.Description}");
+                }
+
+                return (true, null);
+            }
+
+            return (false, null);
 
             /*
              if (pcap_findalldevs_ex(PCAP_SRC_IF_STRING,
@@ -82,8 +98,6 @@ namespace npcap.net
                 exit(1);
             }
             */
-
-            return (true, null);
         }
     }
 }

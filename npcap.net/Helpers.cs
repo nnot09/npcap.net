@@ -1,4 +1,6 @@
 ﻿using Microsoft.Win32;
+using npcap.net.ManagedTypes;
+using npcap.net.Native;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
@@ -8,6 +10,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Channels;
+using static npcap.net.Native.WpcapStructs;
 
 namespace npcap.net
 {
@@ -73,6 +76,30 @@ namespace npcap.net
 
             return Directory.Exists(path);
 #pragma warning restore CA1416 // Validate platform compatibility
+        }
+
+        public static List<TStruct> ConvertIntPtrLinkedListToManagedList<TStruct>(this IntPtr ptr)
+            where TStruct : struct, ILinkedList
+        {
+            if (ptr == IntPtr.Zero)
+            {
+                return new List<TStruct>();
+            }
+
+            List<TStruct> ret = new List<TStruct>();
+            unsafe
+            {
+                IntPtr current = ptr;
+
+                while (current != IntPtr.Zero)
+                {
+                    TStruct testttr = Marshal.PtrToStructure<TStruct>(current);
+                    ret.Add(testttr);
+                    current = (IntPtr)((ILinkedList)testttr).next;
+                }
+            }
+
+            return ret;
         }
 
         public static bool IsNullOrWhiteSpace(this string? value) => string.IsNullOrWhiteSpace(value);
