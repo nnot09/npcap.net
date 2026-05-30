@@ -1,5 +1,4 @@
-﻿using npcap.net.NewFolder;
-using System.Security.Cryptography.X509Certificates;
+﻿using npcap.net.Exceptions;
 
 namespace npcap.net
 {
@@ -12,7 +11,7 @@ namespace npcap.net
             var isElevated = Helpers.IsElevated();
             if (!isElevated.IsTrue)
             {
-                throw new NpcapNotInstalledException(isElevated.Reason ?? "Windows OS and administrative privileges are required.");
+                throw new ElevationRequiredException(isElevated.Reason ?? "Windows OS and administrative privileges are required.");
             }
 
             if (!Helpers.IsNpcapInstalled())

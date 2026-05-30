@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace npcap.net.NewFolder
+namespace npcap.net.Exceptions
 {
-    internal class NpcapNotInstalledException : Exception
+    internal class DllLoadingFailedException : Exception
     {
-        public NpcapNotInstalledException(string message) 
+        public DllLoadingFailedException(string message)
             : base(message)
         {
              

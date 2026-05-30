@@ -1,4 +1,4 @@
-﻿using npcap.net.NewFolder;
+﻿using npcap.net.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;

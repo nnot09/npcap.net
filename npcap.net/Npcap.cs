@@ -1,6 +1,6 @@
-﻿using npcap.net.ManagedTypes;
+﻿using npcap.net.Exceptions;
+using npcap.net.ManagedTypes;
 using npcap.net.Native;
-using npcap.net.NewFolder;
 using npcap.net.Types;
 using System;
 using System.Collections.Generic;
