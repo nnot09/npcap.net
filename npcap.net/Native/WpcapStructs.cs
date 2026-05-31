@@ -1,5 +1,7 @@
-﻿using System;
+﻿using npcap.net.Native.Libraries;
+using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -11,33 +13,21 @@ namespace npcap.net.Native
     // mainly used SDK and online research
     internal static class WpcapStructs
     {
-        // found it somewhere but forgot the credits, thanks unknown hero!
-        [StructLayout(LayoutKind.Sequential)]
-        public struct sockaddr
-        {
-            public ushort sa_family;
-
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 14)]
-            public byte[] sa_data;
-        }
-
-        /*
- * Representation of an interface address.
- */
+        /// <summary>
+        /// Representation of an interface address.
+        /// </summary>
         public unsafe struct pcap_addr
         {
-            pcap_addr* next;
-            sockaddr* addr;     /* address */
-            sockaddr* netmask;  /* netmask for that address */
-            sockaddr* broadaddr;    /* broadcast address for that address */
-            sockaddr* dstaddr;	/* P2P destination address for that address */
+            public pcap_addr* next;
+            public Ws2_32.sockaddr* addr;     /* address */
+            public Ws2_32.sockaddr* netmask;  /* netmask for that address */
+            public Ws2_32.sockaddr* broadaddr;    /* broadcast address for that address */
+            public Ws2_32.sockaddr* dstaddr;	/* P2P destination address for that address */
         };
 
         /*
- * Item in a list of interfaces.
+        * Item in a list of interfaces.
  */
-        // typedef u_int bpf_u_int32;
-
         // Credits Copilot for the idea to use an interface in combination with the next pointer.
         public unsafe interface ILinkedList
         {

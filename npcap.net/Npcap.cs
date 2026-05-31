@@ -1,10 +1,13 @@
 ﻿using npcap.net.Exceptions;
 using npcap.net.ManagedTypes;
 using npcap.net.Native;
+using npcap.net.Native.Libraries;
 using npcap.net.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using static npcap.net.Native.WpcapStructs;
@@ -74,15 +77,10 @@ namespace npcap.net
                 return (false, sb.ToString());
             }
 
-            var deviceList = devices.ConvertIntPtrLinkedListToManagedList<pcap_if>().Select(p => new Device(p)).ToList();
+            var deviceList = devices.ConvertIntPtrLinkedListToManagedList<pcap_if>();
             if (deviceList.Any())
             {
-                foreach (var device in deviceList)
-                {
-                    Console.WriteLine($"{device.Description}");
-                }
-
-                return (true, null);
+                PrintDevices(deviceList);
             }
 
             return (false, null);
@@ -98,6 +96,52 @@ namespace npcap.net
                 exit(1);
             }
             */
+        }
+
+        public unsafe void PrintDevices(List<pcap_if> devices)
+        {
+            // https://npcap.com/guide/npcap-tutorial.html#npcap-tutorial-devdetails
+            // "Obtaining advanced information about installed devices"
+
+            foreach (var dev in devices)
+            {
+                Console.WriteLine();
+
+                bool isLoopback = (dev.flags & WpcapDefs.PCAP_IF_LOOPBACK) == WpcapDefs.PCAP_IF_LOOPBACK;
+
+                Console.WriteLine($"\tDescription: {dev.description}");
+                Console.WriteLine($"\tLoopback: {isLoopback}");
+                if (dev.addresses == null) continue;
+                Console.WriteLine($"\tAddress Family: {dev.addresses->addr->sa_family}");
+                switch (dev.addresses->addr->sa_family)
+                {
+                    case AddressFamily.InterNetwork:
+                        if (dev.addresses->addr != null)
+                        {
+                            Console.WriteLine($"\tAddress: {new IPAddress(((Ws2_32.sockaddr_in*)dev.addresses->addr)->sin_addr.s_addr)}");
+                        }
+
+                        if (dev.addresses->netmask != null)
+                        {
+                            Console.WriteLine($"\tNetmask: {new IPAddress(((Ws2_32.sockaddr_in*)dev.addresses->netmask)->sin_addr.s_addr)}");
+                        }
+
+                        if (dev.addresses->broadaddr != null)
+                        {
+                            Console.WriteLine($"\tBroadcast Address: {new IPAddress(((Ws2_32.sockaddr_in*)dev.addresses->broadaddr)->sin_addr.s_addr)}");
+                        }
+
+                        if (dev.addresses->dstaddr != null)
+                        {
+                            Console.WriteLine($"\tDestination Address: {new IPAddress(((Ws2_32.sockaddr_in*)dev.addresses->dstaddr)->sin_addr.s_addr)}");
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("\tUnknown handling");
+                        break;
+
+                }
+            }
         }
     }
 }
