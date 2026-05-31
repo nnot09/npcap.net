@@ -129,6 +129,165 @@ PCAP_API int	pcap_findalldevs_ex(const char *source,
         /// <param name="p"></param>
         /// <param name="snaplen"></param>
         /// <returns>0 on success, PCAP_ERROR_ACTIVATED (-4) on failure. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
         public unsafe static extern int pcap_set_snaplen(WpcapStructs.pcap* p, int snaplen);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_snapshot.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns>snapshot length on success or PCAP_ERROR_NOT_ACTIVATED (-3) on failure. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe static extern int pcap_snapshot(WpcapStructs.pcap* p);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_set_promisc.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="promisc"></param>
+        /// <returns>0 on success, PCAP_ERROR_ACTIVATED (-4) on failure. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe static extern int pcap_set_promisc(WpcapStructs.pcap* p, int promisc);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_set_rfmon.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="rfmon"></param>
+        /// <returns>0 on success, PCAP_ERROR_ACTIVATED (-4) on failure. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe static extern int pcap_set_rfmon(WpcapStructs.pcap* p, int rfmon);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_can_set_rfmon.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns>returns 0 if monitor mode could not be set, 1 if monitor mode could be set, and a negative value on error. A negative return value indicates what error condition occurred. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe static extern int pcap_can_set_rfmon(WpcapStructs.pcap* p);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_set_timeout.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="to_ms"></param>
+        /// <returns>0 on success, PCAP_ERROR_ACTIVATED (-4) on failure. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe static extern int pcap_set_timeout(WpcapStructs.pcap* p, int to_ms);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_set_buffer_size.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="buffer_size"></param>
+        /// <returns>0 on success, PCAP_ERROR_ACTIVATED (-4) on failure. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_set_buffer_size(WpcapStructs.pcap* p, int buffer_size);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_set_tstamp_type.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="tstamp_type"></param>
+        /// <returns>0 on success. Please refer to the documentation for details.</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_set_tstamp_type(WpcapStructs.pcap* p, int tstamp_type);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_list_tstamp_types.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="tstamp_types"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_list_tstamp_types(WpcapStructs.pcap* p, out IntPtr tstamp_types);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_list_tstamp_types.html"/>
+        /// </summary>
+        /// <param name="tstamp_types"></param>
+        [DllImport("wpcap.dll")]
+        public extern static void pcap_free_tstamp_types(IntPtr tstamp_types);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_tstamp_type_val_to_name.html"/>
+        /// </summary>
+        /// <param name="tstamp_type"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public extern static string pcap_tstamp_type_val_to_name(int tstamp_type);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_tstamp_type_val_to_name.html"/>
+        /// </summary>
+        /// <param name="tstamp_type"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public extern static string pcap_tstamp_type_val_to_description(int tstamp_type);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_tstamp_type_name_to_val.html"/>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public extern static int pcap_tstamp_type_name_to_val(string name);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_set_tstamp_precision.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="precision"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_set_tstamp_precision(WpcapStructs.pcap* p, int precision);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_list_tstamp_precisions.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_get_tstamp_precision(WpcapStructs.pcap* p);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_datalink.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_datalink(WpcapStructs.pcap* p);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_file.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns>FILE*</returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static IntPtr pcap_file(WpcapStructs.pcap* p);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_is_swapped.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_is_swapped(WpcapStructs.pcap* p);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_major_version.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_major_version(WpcapStructs.pcap* p);
+
+        /// <summary>
+        /// <see href="https://npcap.com/guide/wpcap/pcap_major_version.html"/>
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        [DllImport("wpcap.dll")]
+        public unsafe extern static int pcap_minor_version(WpcapStructs.pcap* p);
     }
 }
