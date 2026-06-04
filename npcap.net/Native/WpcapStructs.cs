@@ -11,7 +11,7 @@ using static System.Net.WebRequestMethods;
 namespace npcap.net.Native
 {
     // mainly used SDK and online research
-    internal static class WpcapStructs
+    public static class WpcapStructs
     {
         /// <summary>
         /// Representation of an interface address.
@@ -149,14 +149,25 @@ namespace npcap.net.Native
             uint k;
         };
 
+        /// <summary>
+        /// Time value structure used in pcap_pkthdr
+        /// On Windows, timeval uses 32-bit integers (not 64-bit longs)
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct timeval
+        {
+            public int tv_sec;   /* seconds since Jan. 1, 1970 (32-bit, valid until 2038) */
+            public int tv_usec;  /* and microseconds */
+        };
+
         [StructLayout(LayoutKind.Sequential)]
         public struct pcap_pkthdr
         {
-            // public timeval ts;	/* time stamp */
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-            public byte[] ts;
-            public uint caplen; /* length of portion present in data */
-            public uint len;    /* length of this packet prior to any slicing */
+            public timeval ts;  /* time stamp */
+            // [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+            // public byte[] ts;
+            public uint caplen; /* length of portion present */
+            public uint len;    /* length this packet (off wire) */
         };
 
 
@@ -253,10 +264,10 @@ if !defined(_WIN32)
              */
             public bpf_program fcode;
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = WpcapDefs.PCAP_ERRBUF_SIZE + 1)] // PCAP_ERRBUF_SIZE
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = WpcapDefs.General.PCAP_ERRBUF_SIZE + 1)] // PCAP_ERRBUF_SIZE
             public char[] errbuf;
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = WpcapDefs.PCAP_ERRBUF_SIZE + 1)] // PCAP_ERRBUF_SIZE
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = WpcapDefs.General.PCAP_ERRBUF_SIZE + 1)] // PCAP_ERRBUF_SIZE
             public char[] acp_errbuf;  /* buffer for local code page error strings */
             public int dlt_count;
             public uint* dlt_list;
