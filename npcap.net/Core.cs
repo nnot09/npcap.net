@@ -22,39 +22,13 @@ namespace npcap.net
             IsReady = true;
         }
 
-        public void Routine()
+        public Npcap Create()
         {
-            try
+            if (!IsReady)
             {
-                Console.Write($"{DateTime.Now} npcap.net: Loading npcap...");
-                
-                Npcap npcap = new Npcap();
-                if (npcap.IsReady)
-                {
-                    Console.WriteLine("OK");
-                }
-                else
-                {
-                    Console.WriteLine("ERR");
-                    return;
-                }
-
-                Console.WriteLine($"{DateTime.Now} npcap.net: Running tests");
-                var result = npcap.Test();
-                if (result.Success)
-                {
-                    Console.WriteLine("Test successful.");
-                }
-                else
-                {
-                    Console.WriteLine("Test failed.");
-                    Console.WriteLine($"{DateTime.Now} npcap.net: {result.ErrorMessage}");
-                }
+                throw new InvalidOperationException("Software is not ready. Ensure that the system meets the requirements and try again.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{DateTime.Now} npcap.net: {ex.Message}");
-            }
+            return new Npcap();
         }
     }
 }

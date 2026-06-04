@@ -8,7 +8,7 @@ using System.Text;
 namespace npcap.net.Native.Libraries
 {
     // ws2_32.dll - Credits to Copilot for implementation.
-    internal static class Ws2_32
+    public static class Ws2_32
     {
         [StructLayout(LayoutKind.Sequential)]
         public unsafe struct sockaddr

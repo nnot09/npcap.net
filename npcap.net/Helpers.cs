@@ -4,6 +4,7 @@ using npcap.net.Native;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -100,6 +101,21 @@ namespace npcap.net
             }
 
             return ret;
+        }
+
+        public static long ToLongIpAddress(this IPAddress ip)
+        {
+            byte[] bytes = ip.GetAddressBytes();
+            if (bytes.Length == 4)
+            {
+                return BitConverter.ToInt32(bytes, 0);
+            }
+            else if (bytes.Length == 16)
+            {
+                return BitConverter.ToInt64(bytes, 0);
+            }
+
+            return 0;
         }
 
         public static bool IsNullOrWhiteSpace(this string? value) => string.IsNullOrWhiteSpace(value);
