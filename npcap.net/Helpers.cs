@@ -1,13 +1,17 @@
 ﻿using Microsoft.Win32;
+using npcap.net.ManagedTypes;
+using npcap.net.Native;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Channels;
+using static npcap.net.Native.WpcapStructs;
 
 namespace npcap.net
 {
@@ -73,6 +77,45 @@ namespace npcap.net
 
             return Directory.Exists(path);
 #pragma warning restore CA1416 // Validate platform compatibility
+        }
+
+        public static List<TStruct> ConvertIntPtrLinkedListToManagedList<TStruct>(this IntPtr ptr)
+            where TStruct : struct, ILinkedList
+        {
+            if (ptr == IntPtr.Zero)
+            {
+                return new List<TStruct>();
+            }
+
+            List<TStruct> ret = new List<TStruct>();
+            unsafe
+            {
+                IntPtr current = ptr;
+
+                while (current != IntPtr.Zero)
+                {
+                    TStruct testttr = Marshal.PtrToStructure<TStruct>(current);
+                    ret.Add(testttr);
+                    current = (IntPtr)((ILinkedList)testttr).next;
+                }
+            }
+
+            return ret;
+        }
+
+        public static long ToLongIpAddress(this IPAddress ip)
+        {
+            byte[] bytes = ip.GetAddressBytes();
+            if (bytes.Length == 4)
+            {
+                return BitConverter.ToInt32(bytes, 0);
+            }
+            else if (bytes.Length == 16)
+            {
+                return BitConverter.ToInt64(bytes, 0);
+            }
+
+            return 0;
         }
 
         public static bool IsNullOrWhiteSpace(this string? value) => string.IsNullOrWhiteSpace(value);

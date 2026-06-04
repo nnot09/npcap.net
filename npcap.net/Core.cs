@@ -1,5 +1,4 @@
-﻿using npcap.net.NewFolder;
-using System.Security.Cryptography.X509Certificates;
+﻿using npcap.net.Exceptions;
 
 namespace npcap.net
 {
@@ -12,7 +11,7 @@ namespace npcap.net
             var isElevated = Helpers.IsElevated();
             if (!isElevated.IsTrue)
             {
-                throw new NpcapNotInstalledException(isElevated.Reason ?? "Windows OS and administrative privileges are required.");
+                throw new ElevationRequiredException(isElevated.Reason ?? "Windows OS and administrative privileges are required.");
             }
 
             if (!Helpers.IsNpcapInstalled())
@@ -23,39 +22,13 @@ namespace npcap.net
             IsReady = true;
         }
 
-        public void Routine()
+        public Npcap Create()
         {
-            try
+            if (!IsReady)
             {
-                Console.Write($"{DateTime.Now} npcap.net: Loading npcap...");
-                
-                Npcap npcap = new Npcap();
-                if (npcap.IsReady)
-                {
-                    Console.WriteLine("OK");
-                }
-                else
-                {
-                    Console.WriteLine("ERR");
-                    return;
-                }
-
-                Console.Write($"{DateTime.Now} npcap.net: Running test...");
-                var result = npcap.Test();
-                if (result.Success)
-                {
-                    Console.WriteLine("OK");
-                }
-                else
-                {
-                    Console.WriteLine("ERR");
-                    Console.WriteLine($"{DateTime.Now} npcap.net: {result.ErrorMessage}");
-                }
+                throw new InvalidOperationException("Software is not ready. Ensure that the system meets the requirements and try again.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{DateTime.Now} npcap.net: {ex.Message}");
-            }
+            return new Npcap();
         }
     }
 }
