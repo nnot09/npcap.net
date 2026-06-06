@@ -10,14 +10,18 @@ namespace npcap.net
     {
         private static void InternalWriteLine(string message, string type = "UNK", string? memberName = null)
         {
+            string producerMessage = string.Empty;
+
             if (memberName == null)
             {
-                Console.WriteLine($"{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff")} npcap.net [{type}]: {message}");
+                producerMessage = $"{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff")} npcap.net [{type}]: {message}";
             }
             else
             {
-                Console.WriteLine($"{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff")} npcap.net [{type}] [{memberName}]: {message}");
+                producerMessage = $"{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff")} npcap.net [{type}][{memberName}]: {message}";
             }
+
+            MessageService.Queue(producerMessage);
         }
 
         public static void Debug(string message, [CallerMemberName] string? memberName = null)

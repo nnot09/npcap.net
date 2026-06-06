@@ -6,7 +6,7 @@ using System.Text;
 
 namespace npcap.net.Native
 {
-    internal class Bridge
+    internal class NativeHelpers
     {
         public static IntPtr LoadLibrary(string dllPath)
         {
