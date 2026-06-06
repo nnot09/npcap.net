@@ -1,13 +1,22 @@
-﻿using npcap.net.Exceptions;
+﻿using npcap.net.Bridge;
+using npcap.net.Exceptions;
 
 namespace npcap.net
 {
     public class Core
     {
-        public bool IsReady { get; private set; }
+        public static bool IsInitalized { get; private set; }
 
-        public Core()
+        /// <summary>
+        /// Initializes the Core class by checking certain things to ensure that npcap and it's components can run properly.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ElevationRequiredException">Raised when application is not running with administrative privileges.</exception>
+        /// <exception cref="NpcapNotInstalledException">Raised when Npcap is not installed or corrupted.</exception>
+        public static Core? Initialize()
         {
+            if (IsInitalized) return null;
+
             var isElevated = Helpers.IsElevated();
             if (!isElevated.IsTrue)
             {
@@ -19,12 +28,19 @@ namespace npcap.net
                 throw new NpcapNotInstalledException("Npcap is not installed or corrupted. Please visit https://npcap.com/#download to download and install it.");
             }
 
-            IsReady = true;
+
+            IsInitalized = true;
+            return new Core();
         }
 
-        public Npcap Create()
+        /// <summary>
+        /// Creates an instance of the Npcap class. Ensure that the Core class is initialized before calling this method.
+        /// </summary>
+        /// <returns>Instance of <see cref="Npcap"/></returns>
+        /// <exception cref="InvalidOperationException">Raised when the Core class is not initialized.</exception>
+        public Npcap CreateNpcap()
         {
-            if (!IsReady)
+            if (!IsInitalized)
             {
                 throw new InvalidOperationException("Software is not ready. Ensure that the system meets the requirements and try again.");
             }

@@ -22,6 +22,11 @@ namespace npcap.net.ManagedTypes
             Data = new byte[captureLength];
             Marshal.Copy(data, Data, 0, (int)captureLength);
         }
+
+        public override string ToString()
+        {
+            return $"{string.Join(" ", Data.Select(p => p.ToString("x2")))}";
+        }
     }
 
     public class PacketEx : Packet
