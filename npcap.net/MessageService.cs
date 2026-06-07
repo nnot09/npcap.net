@@ -45,11 +45,11 @@ namespace npcap.net
             catch (OperationCanceledException) {  }
         }
         
-        //public static void Dispose()
-        //{
-        //    _channel.Writer.Complete();
-        //    _consumer.GetAwaiter().GetResult();
-        //    _cts.Dispose();
-        //}
+        internal static async Task StopAsync()
+        {
+            _channel.Writer.Complete();
+            await _consumer;
+            _cts.Dispose();
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace npcap.net.Runner
         {
             try
             {
-                using (var npcap = Core.Initialize().CreateNpcap())
+                await using (var npcap = Core.Initialize().CreateNpcap())
                 {
                     npcap.EnablePacketPrinting = true;
                     npcap.Events.PacketCaptured += (packet) =>
@@ -27,6 +27,7 @@ namespace npcap.net.Runner
 
                     device = npcap.Devices.OpenDevice(device, flagS);
                     npcap.Capture.Capture(device, "tcp");
+                    await Task.Delay(Timeout.Infinite);
                 }
 
                 Console.WriteLine("Completed.");
