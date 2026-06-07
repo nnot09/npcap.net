@@ -23,7 +23,7 @@ namespace npcap.net.Bridge
     /// <summary>
     /// Core Npcap class.
     /// </summary>
-    public class Npcap : IDisposable
+    public class Npcap : IAsyncDisposable
     {
         public bool IsReady { get; private set; }
         public bool EnablePacketPrinting { get; set; }
@@ -40,7 +40,6 @@ namespace npcap.net.Bridge
         public FilterControl Filter { get; init; }
         public CaptureControl Capture { get; init; }
         public DevicesControl Devices { get; init; }
-        
 
         public Npcap(MinimumLoggingLevel minimumLoggingLevel = MinimumLoggingLevel.Debug)
         {
@@ -94,7 +93,7 @@ namespace npcap.net.Bridge
             _requestedDeviceList.Add(devicePtr);
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
             if (!IsReady) return;
 
@@ -112,6 +111,8 @@ namespace npcap.net.Bridge
             {
                 NativeHelpers.FreeLibrary(PacketLibrary.Handle);
             }
+
+            await MessageService.StopAsync();
 
             IsReady = false;
         }

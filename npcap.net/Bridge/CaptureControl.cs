@@ -109,9 +109,14 @@ namespace npcap.net.Bridge
                     while (reader.TryRead(out var packet))
                     {
                         _npcap.Events.OnPacketCaptured(packet);
+
+                        var translatedPacket = PacketParserService.ParsePacket(packet);
+                        
+                        _npcap.Events.OnPacketTranslated(translatedPacket);
+
                         if (_npcap.EnablePacketPrinting)
                         {
-                            MessageService.Queue(packet.ToString());
+                            MessageService.Queue($"{translatedPacket.Source} -> {translatedPacket.Destination} (Len: {translatedPacket.RawData.Length})");
                         }
                     }
                 }
