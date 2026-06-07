@@ -1,8 +1,10 @@
 ﻿using npcap.net.ManagedTypes;
 using npcap.net.Native;
+using PacketDotNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Channels;
@@ -41,7 +43,7 @@ namespace npcap.net.Bridge
                  *  
                  *  however, unbounded channels are a MISERABLE choice here..consider bounded channels
                  */
-                var channel = Channel.CreateUnbounded<Packet>(new UnboundedChannelOptions()
+                var channel = Channel.CreateUnbounded<RawPacket>(new UnboundedChannelOptions()
                 {
                     SingleReader = true,
                     SingleWriter = true
@@ -66,7 +68,7 @@ namespace npcap.net.Bridge
             }
         }
 
-        private unsafe async Task ProducerAsync(Device device, ChannelWriter<Packet> writer, CancellationToken token)
+        private unsafe async Task ProducerAsync(Device device, ChannelWriter<RawPacket> writer, CancellationToken token)
         {
             try
             {
@@ -82,7 +84,8 @@ namespace npcap.net.Bridge
                     }
 
                     var hdr = Marshal.PtrToStructure<pcap_pkthdr>(packetHeader);
-                    var packet = new Packet(data, hdr.len, hdr.caplen, DateTime.Now);
+                    var linktype = Wpcap.pcap_datalink((WpcapStructs.pcap*)device.Handle);
+                    var packet = new RawPacket((LinkLayers)linktype, data, hdr.len, hdr.caplen, DateTime.Now);
                     // _npcap.Events.OnPacketCaptured(packet);
 
                     writer.TryWrite(packet);
@@ -100,23 +103,19 @@ namespace npcap.net.Bridge
             }
         }
 
-        private async Task ConsumerAsync(ChannelReader<Packet> reader, CancellationToken token)
+        private async Task ConsumerAsync(ChannelReader<RawPacket> reader, CancellationToken token)
         {
             try
             {
                 while (await reader.WaitToReadAsync(token))
                 {
-                    while (reader.TryRead(out var packet))
+                    while (reader.TryRead(out var rawPacket))
                     {
-                        _npcap.Events.OnPacketCaptured(packet);
-
-                        var translatedPacket = PacketParserService.ParsePacket(packet);
-                        
-                        _npcap.Events.OnPacketTranslated(translatedPacket);
+                        _npcap.Events.OnPacketCaptured(rawPacket);
 
                         if (_npcap.EnablePacketPrinting)
                         {
-                            MessageService.Queue($"{translatedPacket.Source} -> {translatedPacket.Destination} (Len: {translatedPacket.RawData.Length})");
+                            MessageService.Queue(rawPacket.Packet.ToString());
                         }
                     }
                 }

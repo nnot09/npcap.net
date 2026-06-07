@@ -8,13 +8,11 @@ namespace npcap.net.Bridge
 {
     public class EventsControl
     {
-        public delegate void PacketCapturedHandler(Packet capturedPacket);
-        public delegate void PacketTranslatedHandler(TranslatedPacket translatedPacket);
+        public delegate void PacketCapturedHandler(RawPacket capturedPacket);
         public delegate void TimeoutHandler(Device device);
         public delegate void OnDeviceErrorHandler(Device device, string? errorMessage);
 
         public event PacketCapturedHandler? PacketCaptured;
-        public event PacketTranslatedHandler? PacketTranslated;
         public event TimeoutHandler? Timeout;
         public event OnDeviceErrorHandler? DeviceError;
         
@@ -25,7 +23,7 @@ namespace npcap.net.Bridge
             this._npcap = npcap;
         }
 
-        internal void OnPacketCaptured(Packet packet)
+        internal void OnPacketCaptured(RawPacket packet)
         {
             PacketCaptured?.Invoke(packet);
         }
@@ -38,11 +36,6 @@ namespace npcap.net.Bridge
         internal void OnDeviceError(Device device, string? errorMessage)
         {
             DeviceError?.Invoke(device, errorMessage);
-        }
-
-        internal void OnPacketTranslated(TranslatedPacket translatedPacket)
-        {
-            PacketTranslated?.Invoke(translatedPacket);
         }
     }
 }
