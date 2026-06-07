@@ -1,10 +1,12 @@
 ﻿using npcap.net.ManagedTypes;
 using npcap.net.Native;
 using PacketDotNet;
+using PacketDotNet.Ieee80211;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Channels;
@@ -12,6 +14,51 @@ using static npcap.net.Native.WpcapStructs;
 
 namespace npcap.net.Bridge
 {
+    public interface ICaptureJoystick
+    {
+        internal Task ProducerTask { get; set; }
+        internal Task ConsumerTask { get; set; }
+        internal Task WaiterTask { get; set; }
+        internal CancellationTokenSource Cts { get; set; }
+        public void Stop();
+        public Task StopAsync();
+    }
+
+    public class CaptureJoystick : ICaptureJoystick
+    {
+        Task ICaptureJoystick.ProducerTask { get; set; }
+        Task ICaptureJoystick.ConsumerTask { get; set; }
+        Task ICaptureJoystick.WaiterTask { get; set; }
+        CancellationTokenSource ICaptureJoystick.Cts { get; set; }
+
+        internal void Set(Task waiter, Task producer, Task consumer, CancellationTokenSource cts)
+        {
+            var inst = (ICaptureJoystick)this;
+            inst.Cts = cts;
+            inst.WaiterTask = waiter;
+            inst.ProducerTask = producer;
+            inst.ConsumerTask = consumer;
+        }
+
+        void ICaptureJoystick.Stop()
+        {
+            var inst = (ICaptureJoystick)this;
+            inst.Cts.Cancel();
+            inst.WaiterTask.Wait();
+            inst.ProducerTask.Dispose();
+            inst.ConsumerTask.Dispose();
+        }
+
+        async Task ICaptureJoystick.StopAsync()
+        {
+            var inst = (ICaptureJoystick)this;
+            await inst.Cts.CancelAsync();
+            await inst.WaiterTask;
+            inst.ProducerTask.Dispose();
+            inst.ConsumerTask.Dispose();
+        }
+    }
+
     public class CaptureControl
     {
         private readonly Npcap _npcap;
@@ -21,7 +68,8 @@ namespace npcap.net.Bridge
             this._npcap = npcap;
         }
 
-        public bool Capture(Device device, string filter)
+
+        public (bool Success, ICaptureJoystick? Joystick) Capture(Device device, string filter = "")
         {
             CancellationTokenSource cts = new CancellationTokenSource();
 
@@ -30,7 +78,7 @@ namespace npcap.net.Bridge
                 var bpfFilter = _npcap.Filter.Compile(device, filter);
                 if (!_npcap.Filter.SetFilter(device, bpfFilter))
                 {
-                    return false;
+                    return (false, null);
                 }
 
                 ConsoleEx.Debug("initializing I/O channels...");
@@ -49,23 +97,29 @@ namespace npcap.net.Bridge
                     SingleWriter = true
                 });
 
+                ConsoleEx.Debug($"starting packet capture of device '{device.Name}' using filter: '{filter}'");
+
                 var producerTask = Task.Run(() => ProducerAsync(device, channel.Writer, cts.Token));
                 var consumerTask = Task.Run(() => ConsumerAsync(channel.Reader, cts.Token));
 
-                Task.WhenAll(producerTask, consumerTask).ContinueWith(p =>
+                var task = Task.WhenAll(producerTask, consumerTask).ContinueWith(p =>
                 {
                     Wpcap.pcap_freecode(bpfFilter);
                     cts.Dispose();
                     ConsoleEx.Debug($"capture for device '{device.Name}' completed");
                 });
 
-                // TODO handle task disposal
-                //producerTask.Dispose();
-                //consumerTask.Dispose();
 
-                ConsoleEx.Debug($"starting packet capture of device '{device.Name}' using filter: '{filter}'");
-                return true;
+                CaptureJoystick captureJoystick = new CaptureJoystick();
+                captureJoystick.Set(task, producerTask, consumerTask, cts);
+
+                return (true, captureJoystick);
             }
+        }
+
+        public unsafe async Task WriteDumpFileAsync()
+        {
+            // TODO
         }
 
         private unsafe async Task ProducerAsync(Device device, ChannelWriter<RawPacket> writer, CancellationToken token)

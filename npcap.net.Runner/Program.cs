@@ -26,8 +26,12 @@ namespace npcap.net.Runner
                         Native.WpcapDefs.PcapOpenOptions.PCAP_OPENFLAG_MAX_RESPONSIVENESS;
 
                     device = npcap.Devices.OpenDevice(device, flagS);
-                    npcap.Capture.Capture(device, "tcp");
-                    await Task.Delay(Timeout.Infinite);
+                    var result = npcap.Capture.Capture(device, "tcp");
+                    if (result.Success)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                        await result.Joystick!.StopAsync();
+                    }
                 }
 
                 Console.WriteLine("Completed.");
