@@ -1,0 +1,66 @@
+name: Security scan
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  codeql:
+    name: CodeQL analysis
+    runs-on: windows-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
+      - name: Restore dependencies
+        run: dotnet restore npcap.net.slnx
+
+      - name: Build solution
+        run: dotnet build npcap.net.slnx --configuration Release --no-restore
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+
+  dependency-check:
+    name: NuGet vulnerability check
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore npcap.net.slnx
+
+      - name: Check for vulnerable packages
+        run: |
+          $output = dotnet list npcap.net.slnx package --vulnerable --include-transitive 2>&1
+          Write-Output $output
+          if ($output -match "has the following vulnerable packages") {
+            Write-Error "Vulnerable NuGet packages detected."
+            exit 1
+          }
+        shell: pwsh
