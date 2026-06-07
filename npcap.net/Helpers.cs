@@ -118,6 +118,25 @@ namespace npcap.net
             return 0;
         }
 
+        public static long ConvertIntoBytes(this SizeUnit unit, long value)
+        {
+            switch (unit)
+            {
+                case SizeUnit.Byte:
+                    return value;
+                case SizeUnit.KiB:
+                    return value * 1024;
+                case SizeUnit.MiB:
+                    return value * 1024 * 1024;
+                case SizeUnit.GiB:
+                    return value * 1024 * 1024 * 1024;
+                case SizeUnit.TiB:
+                    return value * 1024 * 1024 * 1024 * 1024;
+                default:
+                    return value;
+            }
+        }
+
         public static bool IsNullOrWhiteSpace(this string? value) => string.IsNullOrWhiteSpace(value);
     }
 }
