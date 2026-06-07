@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
+
+[assembly: InternalsVisibleTo("npcap.net.Tests")]
 
 namespace npcap.net
 {
@@ -31,8 +34,10 @@ namespace npcap.net
                 return;
             }
 
-            ShouldLogWarning = minimumLoggingLevel >= MinimumLoggingLevel.Warning;
-            ShouldLogError = minimumLoggingLevel >= MinimumLoggingLevel.Error;
+            ShouldLogDebug = false;
+            ShouldLogFull = false;
+            ShouldLogWarning = minimumLoggingLevel <= MinimumLoggingLevel.Warning;
+            ShouldLogError = minimumLoggingLevel <= MinimumLoggingLevel.Error;
         }
     }
 }
